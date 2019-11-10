@@ -57,9 +57,7 @@ public class KNNDTW: NSObject {
     
     
     private func dtw_cost(s1: [Float], s2: [Float]) -> Float {
-        
         //FIRST, we get the distance between each point
-        
         var distances = [[Float]](repeating: [Float](repeating: 0, count: s2.count), count: s1.count)
         
         //use euclidean distance between the pairs of points.
@@ -70,13 +68,9 @@ public class KNNDTW: NSObject {
             }
         }
         
-        
-        
         //SECOND, we compute the warp path (basically cost of each path)
-        
         var acc_cost = [[Float]](repeating: [Float](repeating: 0, count: s2.count), count: s1.count)
         acc_cost[0][0] = distances[0][0]
-        
         
         //horiz axis
         for i in 1...s2.count-1 {
@@ -88,15 +82,12 @@ public class KNNDTW: NSObject {
             acc_cost[i][0] = distances[i][0] + acc_cost[i-1][0]
         }
         
-        
         //should be non horiz and vertical values
         for i in 1...s1.count-1 {
             for j in 1...s2.count-1 {
                 acc_cost[i][j] = min(acc_cost[i-1][j-1], acc_cost[i-1][j], acc_cost[i][j-1]) + distances[i][j]
             }
         }
-        
-        
         
         //THIRD, we backtrack and find cost of optimal path
         var path = [[Int]]()
@@ -106,20 +97,16 @@ public class KNNDTW: NSObject {
         path.append([j, i])
         
         while (i > 0 && j > 0) {
-            if (i==0) {
+            if (i == 0) {
                 j = j - 1
-            }
-            else if (j==0) {
+            } else if (j == 0) {
                 i = i - 1
-            }
-            else {
+            } else {
                 if ( acc_cost[i-1][j] == min(acc_cost[i-1][j-1], acc_cost[i-1][j], acc_cost[i][j-1]) ) {
                     i = i - 1
-                }
-                else if (acc_cost[i][j-1] == min(acc_cost[i-1][j-1], acc_cost[i-1][j], acc_cost[i][j-1])) {
+                } else if (acc_cost[i][j-1] == min(acc_cost[i-1][j-1], acc_cost[i-1][j], acc_cost[i][j-1])) {
                     j = j - 1
-                }
-                else {
+                } else {
                     i = i - 1
                     j = j - 1
                 }
@@ -127,7 +114,6 @@ public class KNNDTW: NSObject {
             path.append([j, i])
         }
         path.append([0,0])
-        
         
         //FOURTH, add up all the costs of the selected path
         var cost: Float = 0.0
@@ -137,12 +123,8 @@ public class KNNDTW: NSObject {
             //print(x, ",", y)
             cost = cost + distances[y][x]
         }
-        
         return cost
     }
-    
-    
-    
     
     public func predict(curveToTestAccX: [Float], curveToTestAccY: [Float], curveToTestAccZ: [Float], curveToTestGyrX: [Float], curveToTestGyrY: [Float], curveToTestGyrZ: [Float]) -> knn_certainty_label_pair {
         
@@ -217,13 +199,10 @@ public class KNNDTW: NSObject {
         
     }
     
-    
     private struct knn_distance_label_pair {
         let distance: Float
         let label: String
     }
-    
-    
 }
 
 

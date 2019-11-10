@@ -189,7 +189,6 @@ public class ViewController: UIViewController {
             sender.setTitle("Record", for: .normal)
             self.classifier.stopTrain()
         }
-        
     }
 
     @IBAction func trainGestures(_ sender: UIButton) {
