@@ -13,7 +13,8 @@ public class ViewController: UIViewController {
     let classifier = RTClassifier()
     var timer = Timer()
 //    let motionManager = CMMotionManager()
-    var exoEar = ExoEarController()
+//    var gruController = GRUController()
+    var gruController = Shared.instance.gruController
     var trained = false
 //    var timer:Timer = Timer()
     @IBOutlet weak var doGestureButton: UIButton!
@@ -29,6 +30,9 @@ public class ViewController: UIViewController {
     @IBOutlet weak var front1: UIButton!
     @IBOutlet weak var front2: UIButton!
     @IBOutlet weak var front3: UIButton!
+    @IBOutlet weak var none1: UIButton!
+    @IBOutlet weak var none2: UIButton!
+    @IBOutlet weak var none3: UIButton!
     @IBOutlet weak var tryBtn: UIButton!
     @IBOutlet weak var selSampleLbl: UILabel!
     @IBOutlet weak var trainBtn: UIButton!
@@ -56,7 +60,7 @@ public class ViewController: UIViewController {
         self.view.bringSubviewToFront(self.connectBtn)
         self.headerLine.layer.zPosition = 2
         // Do any additional setup after loading the view, typically from a nib.
-//        self.exoEar.initExoEar()
+//        self.gruController.initgruController()
 
 //        let data = Helper.createDataDict(path: "data_csv")
 //        print(data)
@@ -77,7 +81,12 @@ public class ViewController: UIViewController {
     }
     
     func setupButtons() {
-        let btns = [self.left1, self.left2, self.left3, self.right1, self.right2, self.right3, self.front1, self.front2, self.front3]
+        let btns = [
+            self.left1, self.left2, self.left3, self.right1,
+            self.right2, self.right3,
+            self.front1, self.front2, self.front3,
+            self.none1, self.none2, self.none3
+        ]
         for btn in btns {
             btn!.backgroundColor = UIColor.white
             btn!.layer.borderColor = UIColor.black.cgColor
@@ -107,17 +116,17 @@ public class ViewController: UIViewController {
     
 //    var date = Date.timeIntervalSinceReferenceDate
     @objc func updateBattery() {
-        let vBat = self.exoEar.getVBat()
+        let vBat = self.gruController.getVBat()
         self.vBatLbl.text = String(vBat) + "%"
     }
 
     @IBAction func connect(_ sender: UIButton) {
-        print(self.exoEar.getPeripheralState())
-        if self.exoEar.getPeripheralState() == "Disconnected" {
-            self.exoEar.connectExoEar()
+        print(self.gruController.getPeripheralState())
+        if self.gruController.getPeripheralState() == "Disconnected" {
+            self.gruController.connect()
             sender.setTitle("Connecting", for: .normal)
         } else {
-            self.exoEar.disconnectExoEar()
+            self.gruController.disconnect()
             sender.setTitle("Disconnecting", for: .normal)
         }
     }
@@ -134,7 +143,7 @@ public class ViewController: UIViewController {
         startVBatUpdate()
     }
     
-    var cmds = ["l": "left", "r": "right", "f": "front"]
+    var cmds = ["l": "left", "r": "right", "f": "front", "n": "none"]
     var activeBtn: UIButton?
     @IBAction func selectSample(_ sender: UIButton) {
         if let id = sender.restorationIdentifier {
@@ -161,7 +170,7 @@ public class ViewController: UIViewController {
     
     var isRecording = false
     @IBAction func gatherSample(_ sender: UIButton) {
-        if self.exoEar.getPeripheralState() == "Disconnected" {
+        if self.gruController.getPeripheralState() == "Disconnected" {
             let alert = UIAlertController(title: "Please connect GRU", message: "", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
             //         alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: nil))
@@ -192,7 +201,12 @@ public class ViewController: UIViewController {
     }
 
     @IBAction func trainGestures(_ sender: UIButton) {
-        let btns = [self.left1, self.left2, self.left3, self.right1, self.right2, self.right3, self.front1, self.front2, self.front3]
+        let btns = [
+                    self.left1, self.left2, self.left3,
+                    self.right1, self.right2, self.right3,
+                    self.front1, self.front2, self.front3,
+                    self.none1, self.none2, self.none3
+        ]
         for btn in btns {
             if btn!.backgroundColor != UIColor.darkGray {
                 let alert = UIAlertController(title: "Please record all samples", message: "", preferredStyle: .alert)
@@ -205,7 +219,7 @@ public class ViewController: UIViewController {
         self.trained = true
     }
     
-//        let vBat = self.exoEar.getVBat()
+//        let vBat = self.gruController.getVBat()
 ////        let vBat = Date.timeIntervalSinceReferenceDate
 //        self.vBatLabel.text = String(vBat) + "%"
 //    }

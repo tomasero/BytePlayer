@@ -21,7 +21,7 @@ func evaluateKNN(data:Dictionary<String, Participant>) {
     for participantString in participants {
         let participant = data[participantString]
         
-        var sampleMap = [String : Array<Sample>]()
+        var sampleMap = [String : Array<SampleData>]()
         sampleMap["left"] = participant!.leftSamples
         sampleMap["right"] = participant!.rightSamples
         sampleMap["front"] = participant!.frontSamples
@@ -48,7 +48,7 @@ func evaluateKNN(data:Dictionary<String, Participant>) {
     for participantString in participants {
         let participant = data[participantString]
         
-        var sampleMap = [String : Array<Sample>]()
+        var sampleMap = [String : Array<SampleData>]()
         sampleMap["left"] = participant!.leftSamples
         sampleMap["right"] = participant!.rightSamples
         sampleMap["front"] = participant!.frontSamples

@@ -154,8 +154,8 @@ class AudioViewController: UIViewController, MPMediaPickerControllerDelegate {
         let currentTime = Int(mp.currentPlaybackTime)
         let minutes = currentTime/60
         let seconds = currentTime - minutes * 60
-        print("updateTime")
-        print(minutes, seconds)
+//        print("updateTime")
+//        print(minutes, seconds)
         trackTime.text = String(format: "%02d:%02d", minutes,seconds) as String
     }
     

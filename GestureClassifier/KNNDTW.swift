@@ -25,21 +25,13 @@ public class KNNDTW: NSObject {
         self.n_neighbors = neighbors
         self.max_warping_window = max_warp // not implemented
     }
-    
-    
-    
+
     public func train(data_sets: [knn_curve_label_pair]) {
-        
-        
         self.curve_label_pairs = data_sets
-        
         for set in data_sets {
-            
             if (set.curveAccX.count == 0 || set.curveAccY.count == 0 || set.curveAccZ.count == 0 || set.label == "") {
                 print("HEY! BOTH CURVE AND LABEL ARE REQUIRED!")
             }
-            
-            
             //we'll need a list of unique labels for later
             var unique = true
             for in_label in self.unique_labels {
@@ -50,7 +42,6 @@ public class KNNDTW: NSObject {
             if (unique) {
                 self.unique_labels.append(set.label)
             }
-            
         }
     }
     
@@ -59,7 +50,6 @@ public class KNNDTW: NSObject {
     private func dtw_cost(s1: [Float], s2: [Float]) -> Float {
         //FIRST, we get the distance between each point
         var distances = [[Float]](repeating: [Float](repeating: 0, count: s2.count), count: s1.count)
-        
         //use euclidean distance between the pairs of points.
         for (i,_) in s1.enumerated() {
             for (j,_) in s2.enumerated() {
@@ -67,7 +57,6 @@ public class KNNDTW: NSObject {
                 distances[i][j] = pow(abs( s2[j] - s1[i] ), 2)
             }
         }
-        
         //SECOND, we compute the warp path (basically cost of each path)
         var acc_cost = [[Float]](repeating: [Float](repeating: 0, count: s2.count), count: s1.count)
         acc_cost[0][0] = distances[0][0]
@@ -136,7 +125,11 @@ public class KNNDTW: NSObject {
         /*
          loop over all know datapoints and take note of their distances
          */
-        var distances: [knn_distance_label_pair] = [knn_distance_label_pair]()
+//        var distances: [knn_distance_label_pair] = [knn_distance_label_pair]()
+        var distancesGyr: [knn_distance_label_pair] = [knn_distance_label_pair]()
+        var distancesAcc: [knn_distance_label_pair] = [knn_distance_label_pair]()
+        
+        var minDistance:Float = 99999999999.0
         
         for pair in self.curve_label_pairs {
             
@@ -149,24 +142,50 @@ public class KNNDTW: NSObject {
             let yGyrDist = self.dtw_cost(s1: pair.curveGyrY, s2: curveToTestGyrY)
             let zGyrDist = self.dtw_cost(s1: pair.curveGyrZ, s2: curveToTestGyrZ)
             print(xAccDist, yAccDist, zAccDist, xGyrDist, yGyrDist, zGyrDist)
+            print(xAccDist, yAccDist, zAccDist, xGyrDist, yGyrDist, zGyrDist)
 //            let totalDistance = xAccDist + yAccDist + zAccDist + xGyrDist + yGyrDist + zGyrDist
-            let totalDistance = xGyrDist + yGyrDist + zGyrDist
-            print(totalDistance)
-            print(pair.label)
-            distances.append(knn_distance_label_pair(distance: totalDistance, label: pair.label))
+//            let totalDistance = xGyrDist + yGyrDist + zGyrDist
+//            print(totalDistance)
+//            print(pair.label)
+            
+            let totalDistanceGyr = xGyrDist + yGyrDist + zGyrDist
+            let totalDistanceAcc = xAccDist + yAccDist + zAccDist
+            //            print(totalDistance)
+            //            print(pair.label)
+            //            if totalDistanceGyr < minDistance {
+            //                minDistance = totalDistanceGyr
+            //            }
+//            distances.append(knn_distance_label_pair(distance: totalDistance, label: pair.label))
+            distancesGyr.append(knn_distance_label_pair(distance: totalDistanceGyr, label: pair.label))
+            distancesAcc.append(knn_distance_label_pair(distance: totalDistanceAcc, label: pair.label))
         }
         
         //sort the distances, ascending distances
-        distances = distances.sorted(by: { (a, b) -> Bool in
+//        distances = distances.sorted(by: { (a, b) -> Bool in
+//            if (a.distance < b.distance) {
+//                return true
+//            } else {
+//                return false
+//            }
+//        })
+        
+        //sort the distances, ascending distances
+        distancesGyr = distancesGyr.sorted(by: { (a, b) -> Bool in
             if (a.distance < b.distance) {
                 return true
-            }
-            else {
+            } else {
                 return false
             }
         })
         
-        
+        //sort the distances, ascending distances
+        distancesAcc = distancesAcc.sorted(by: { (a, b) -> Bool in
+            if (a.distance < b.distance) {
+                return true
+            } else {
+                return false
+            }
+        })
         
         
         /*
@@ -180,22 +199,34 @@ public class KNNDTW: NSObject {
         }
         
         //put the first n elements in the vote count
-        for i in 0...self.n_neighbors-1 {
-            votes[distances[i].label] = votes[distances[i].label]! + 1
-        }
+//        for i in 0...self.n_neighbors-1 {
+//            votes[distances[i].label] = votes[distances[i].label]! + 1
+//        }
         
         //sort/separate out the votes
+
+        
+        for i in 0...self.n_neighbors-1 {
+            votes[distancesGyr[i].label] = votes[distancesGyr[i].label]! + 1
+        }
+        
+        for i in 0...self.n_neighbors-1 {
+            votes[distancesAcc[i].label] = votes[distancesAcc[i].label]! + 1
+        }
+        
         let sorted_votes = votes.max(by: { (a, b) -> Bool in
             if (a.1 < b.1) {
                 return true
-            }
-            else {
+            } else {
                 return false
             }
         })
         
+
+        
         //return the label and a certainty
-        return knn_certainty_label_pair(probability: Float(sorted_votes!.1)/Float(self.n_neighbors), label: (sorted_votes?.0)!)
+//        return knn_certainty_label_pair(probability: Float(sorted_votes!.1)/Float(self.n_neighbors), label: (sorted_votes?.0)!)
+        return knn_certainty_label_pair(probability: Float(sorted_votes!.1)/Float(self.n_neighbors), label: (sorted_votes?.0)!, minDistance: minDistance)
         
     }
     
@@ -221,4 +252,5 @@ public struct knn_curve_label_pair {
 public struct knn_certainty_label_pair {
     let probability: Float
     let label: String
+    let minDistance:Float
 }

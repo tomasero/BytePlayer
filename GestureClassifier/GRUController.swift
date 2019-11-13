@@ -1,9 +1,9 @@
 //
-//  ExoEarController.swift
-//  GestureiOS
+//  GRUController.swift
+//  ByteItApp
 //
-//  Created by Tomas Vega on 11/27/18.
-//  Copyright © 2018 fluid. All rights reserved.
+//  Created by Tomás Vega on 6/1/19.
+//  Copyright © 2019 fluid. All rights reserved.
 //
 
 import Foundation
@@ -11,7 +11,7 @@ import CoreBluetooth
 import UIKit
 //import CoreMotion
 
-class ExoEarController: UIViewController,
+class GRUController: UIViewController,
     CBCentralManagerDelegate,
 CBPeripheralDelegate {
     
@@ -19,12 +19,13 @@ CBPeripheralDelegate {
     var _peripheral:CBPeripheral!
     var sendCharacteristic: CBCharacteristic!
     var loadedService: Bool = true
+    var tag = -1
     
     let NAME = "GVS"
     let UUID_SERVICE = CBUUID(string: "6E400001-B5A3-F393-E0A9-E50E24DCCA9E")
     let UUID_WRITE = CBUUID(string: "6E400002-B5A3-F393-E0A9-E50E24DCCA9E")
     let UUID_READ = CBUUID(string: "6E400003-B5A3-F393-E0A9-E50E24DCCA9E")
-//    let motionManager = CMMotionManager()
+    //    let motionManager = CMMotionManager()
     
     func getPeripheralState() -> String {
         if let peripheral: CBPeripheral = _peripheral {
@@ -44,12 +45,15 @@ CBPeripheralDelegate {
         return "Disconnected"
     }
     
-    func connectExoEar() {
+    
+    func connect() {
         manager = CBCentralManager(delegate: self, queue: nil)
     }
-
-    func disconnectExoEar() {
-        manager.cancelPeripheralConnection(_peripheral)
+    
+    func disconnect() {
+        if manager != nil && _peripheral != nil{
+            manager.cancelPeripheralConnection(_peripheral)
+        }
     }
     
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
@@ -65,6 +69,8 @@ CBPeripheralDelegate {
         let device = (advertisementData as NSDictionary).object(forKey: CBAdvertisementDataLocalNameKey) as? NSString
         // Check if this is the device we want
         if device?.contains(NAME) == true {
+            print(peripheral.name)
+            print(peripheral.identifier)
             // Stop looking for devices
             // Track as connected peripheral
             // Setup delegate for events
@@ -141,31 +147,22 @@ CBPeripheralDelegate {
     var oldVBat: Int32 = 0
     
     func getVBat() -> Int32 {
-//        print(self.currVBat)
         return self.currVBat
     }
     
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-//        print("Data")
+//        print(peripheral.identifier)
         // Make sure it is the peripheral we want
-        //    print(characteristic.uuid)
         if characteristic.uuid == UUID_READ {
             // Get bytes into string
             let dataReceived = characteristic.value! as NSData
-//             print(dataReceived)
             
             var uAccX: UInt32 = 0
             var uAccY: UInt32 = 0
             var uAccZ: UInt32 = 0
-            var uNAccX: UInt32 = 0
-            var uNAccY: UInt32 = 0
-            var uNAccZ: UInt32 = 0
             var uGyrX: UInt32 = 0
             var uGyrY: UInt32 = 0
             var uGyrZ: UInt32 = 0
-            var uNGyrX: UInt32 = 0
-            var uNGyrY: UInt32 = 0
-            var uNGyrZ: UInt32 = 0
             var vBat: UInt32 = 0
             
             dataReceived.getBytes(&uAccX, range: NSRange(location: 0, length: 4))
@@ -175,34 +172,15 @@ CBPeripheralDelegate {
             dataReceived.getBytes(&uGyrX, range: NSRange(location: 12, length: 4))
             dataReceived.getBytes(&uGyrY, range: NSRange(location: 16, length: 4))
             dataReceived.getBytes(&uGyrZ, range: NSRange(location: 20, length: 4))
-            dataReceived.getBytes(&vBat, range: NSRange(location: 24, length: 4))
-//            print(vBat)
-            //        dataReceived.getBytes(&uNAccX, range: NSRange(location: 24, length: 4))
-            //        dataReceived.getBytes(&uNAccY, range: NSRange(location: 28, length: 4))
-            //        dataReceived.getBytes(&uNAccZ, range: NSRange(location: 32, length: 4))
-            //
-            //        dataReceived.getBytes(&uNGyrX, range: NSRange(location: 36, length: 4))
-            //        dataReceived.getBytes(&uNGyrY, range: NSRange(location: 40, length: 4))
-            //        dataReceived.getBytes(&uNGyrZ, range: NSRange(location: 44, length: 4))
             
+            dataReceived.getBytes(&vBat, range: NSRange(location: 24, length: 4))
             
             var accX: Int32 = Int32(uAccX)
             var accY: Int32 = Int32(uAccY)
             var accZ: Int32 = Int32(uAccZ)
-            //        var nAccX: Int32 = Int32(uNAccX)
-            //        var nAccY: Int32 = Int32(uNAccY)
-            //        var nAccZ: Int32 = Int32(uNAccZ)
             var gyrX: Int32 = Int32(uGyrX)
             var gyrY: Int32 = Int32(uGyrY)
             var gyrZ: Int32 = Int32(uGyrZ)
-            //        var nGyrX: Int32 = Int32(uNGyrX)
-            //        var nGyrY: Int32 = Int32(uNGyrY)
-            //        var nGyrZ: Int32 = Int32(uNGyrZ)
-            
-            //     print(accX, accY, accZ)
-            //        print(nAccX, nAccY, nAccZ)
-            //   print(gyrX, gyrY, gyrZ)
-            //        print(nGyrX, nGyrY)
             
             let max: Int32 = 65536
             let mid: Int32 = 65536/2
@@ -236,14 +214,11 @@ CBPeripheralDelegate {
             currGyrZ = Int32(alpha * Float(gyrZ) + (1 - alpha) * Float(currGyrZ))
             
             self.currVBat = Int32(alpha * Float(vBat) + (1 - alpha) * Float(currVBat))
-//            print(self.currVBat)
+            //            print(self.currVBat)
             let distX = abs(currAccX - oldAccX)
             let distY = abs(currAccY - oldAccY)
             let distZ = abs(currAccZ - oldAccZ)
-            
 
-//                  print(currAccX, oldAccX, distX);
-//                  print(currAccY, oldAccY, distY);
             
             oldAccX = currAccX
             oldAccY = currAccY
@@ -259,40 +234,34 @@ CBPeripheralDelegate {
     }
     
     // add parameter to getData to indicate whether to use iphone data or exoear data
-    func getData(fromExoEar:Bool = true) -> [(Int32, Int32, Int32)] {
-//        if fromExoEar {
-//        print([(currAccX, currAccY, currAccZ), (currGyrX, currGyrY, currGyrZ)])
+    func getData(fromGRU:Bool = true) -> [(Int32, Int32, Int32)] {
         return [(currAccX, currAccY, currAccZ), (currGyrX, currGyrY, currGyrZ)]
-//        } else {
-//            if motionManager.isAccelerometerAvailable {
-//                motionManager.accelerometerUpdateInterval = 0.1
-//                motionManager.startAccelerometerUpdates(to: OperationQueue.main) { (data, error) in
-//                    print(data!)
-//                }
-//            }
-//            return [(currAccX, currAccY, currAccZ), (currGyrX, currGyrY, currGyrZ)]
-//        }
     }
     
     func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
         print("success")
         print(characteristic.uuid)
         print(error)
+        debugPrint("Connected.", self.tag)
+//        let classifyVC = Shared.instance.getVC(name: "ClassifyViewController") as! ClassifyViewController
+//        classifyVC.peripheralStateChanged(tag: self.tag, state: "Connected")
+//        let gesturesVC = Shared.instance.getVC(name: "GesturesViewController") as! GesturesViewController
+//        gesturesVC.peripheralStateChanged(tag: self.tag, state: "Connected")
         let vc = UIApplication.shared.keyWindow!.rootViewController as! ViewController
         vc.peripheralStateChanged(state: "Connected")
-
     }
     
     // Peripheral disconnected
     // Potentially hide relevant interface
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
-        debugPrint("Disconnected.")
+        debugPrint("Disconnected.", self.tag)
+//        let classifyVC = Shared.instance.getVC(name: "ClassifyViewController") as! ClassifyViewController
+//        classifyVC.peripheralStateChanged(tag: self.tag, state: "Disconnected")
+//        let gesturesVC = Shared.instance.getVC(name: "GesturesViewController") as! GesturesViewController
+//        gesturesVC.peripheralStateChanged(tag: self.tag, state: "Disconnected")
         let vc = UIApplication.shared.keyWindow!.rootViewController as! ViewController
         vc.peripheralStateChanged(state: "Disconnected")
-        // Start scanning again
-//        central.scanForPeripherals(withServices: nil, options: nil)
     }
-    
 }
 
 //func getData() -> NSData{
