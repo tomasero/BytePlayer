@@ -15,6 +15,7 @@
 		08EB7424225D30B00079FFD5 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08EB7423225D30B00079FFD5 /* ViewController.swift */; };
 		08EB7427225D30B00079FFD5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 08EB7425225D30B00079FFD5 /* Main.storyboard */; };
 		08EB742C225D30B30079FFD5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 08EB742A225D30B30079FFD5 /* LaunchScreen.storyboard */; };
+		C5E4F221237B9F550019664D /* ByteIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = C5E4F220237B9F540019664D /* ByteIcon.png */; };
 		FF8C3795226E8E8800D6AAE7 /* AudioViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8C3794226E8E8800D6AAE7 /* AudioViewController.swift */; };
 		FF8C379A226EAF8300D6AAE7 /* front.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = FF8C3797226EAE6D00D6AAE7 /* front.jpeg */; };
 		FF8C379B226EAF8300D6AAE7 /* left.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = FF8C3796226EAE6D00D6AAE7 /* left.jpeg */; };
@@ -37,6 +38,7 @@
 		08EB7428225D30B30079FFD5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		08EB742B225D30B30079FFD5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		08EB742D225D30B30079FFD5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C5E4F220237B9F540019664D /* ByteIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ByteIcon.png; path = ../../../Desktop/augmental/ByteIcon.png; sourceTree = "<group>"; };
 		FF8C3794226E8E8800D6AAE7 /* AudioViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioViewController.swift; sourceTree = "<group>"; };
 		FF8C3796226EAE6D00D6AAE7 /* left.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = left.jpeg; path = "/Users/tomasero/Library/Mobile Documents/com~apple~CloudDocs/Documents/MIT/Spring19/research/byte.it/GestureClassifieriOS/GestureClassifier/left.jpeg"; sourceTree = "<absolute>"; };
 		FF8C3797226EAE6D00D6AAE7 /* front.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = front.jpeg; path = "/Users/tomasero/Library/Mobile Documents/com~apple~CloudDocs/Documents/MIT/Spring19/research/byte.it/GestureClassifieriOS/GestureClassifier/front.jpeg"; sourceTree = "<absolute>"; };
@@ -89,6 +91,7 @@
 				08B1429F2268F8570012D326 /* GRUController.swift */,
 				08EB742A225D30B30079FFD5 /* LaunchScreen.storyboard */,
 				08EB742D225D30B30079FFD5 /* Info.plist */,
+				C5E4F220237B9F540019664D /* ByteIcon.png */,
 				FF8C3794226E8E8800D6AAE7 /* AudioViewController.swift */,
 			);
 			path = GestureClassifier;
@@ -156,6 +159,7 @@
 				FF8C379A226EAF8300D6AAE7 /* front.jpeg in Resources */,
 				FF8C379B226EAF8300D6AAE7 /* left.jpeg in Resources */,
 				FF8C379C226EAF8300D6AAE7 /* right.jpeg in Resources */,
+				C5E4F221237B9F550019664D /* ByteIcon.png in Resources */,
 				FF8C379D226EAF8300D6AAE7 /* teeth.jpeg in Resources */,
 				08EB742C225D30B30079FFD5 /* LaunchScreen.storyboard in Resources */,
 				08EB7427225D30B00079FFD5 /* Main.storyboard in Resources */,
