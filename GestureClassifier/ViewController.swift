@@ -8,9 +8,16 @@
 
 import UIKit
 import CoreMotion
+import SocketIO
+import CallKit
+import UserNotifications
 
-public class ViewController: UIViewController {
+public class ViewController: UIViewController, CXProviderDelegate{
+    
+    
     let classifier = RTClassifier()
+    let manager = SocketManager(socketURL: URL(string: "http://localhost:5000/")!, config: [.log(false), .compress])
+    var socket:SocketIOClient!
     var timer = Timer()
 //    let motionManager = CMMotionManager()
 //    var gruController = GRUController()
@@ -43,6 +50,9 @@ public class ViewController: UIViewController {
     @IBOutlet weak var headerLine: UIView!
     
     var audioVC: AudioViewController!
+    
+    var appDelegate = UIApplication.shared.delegate as? AppDelegate
+
     
     override public func viewDidLoad() {
         super.viewDidLoad()
@@ -78,6 +88,85 @@ public class ViewController: UIViewController {
 //        startVBatUpdate()
         setupButtons()
         stopVBatUpdate()
+        
+
+        
+//        let provider = CXProvider(configuration: CXProviderConfiguration(localizedName: "GestureClassifier"))
+//        provider.setDelegate(self, queue: nil)
+//        let update = CXCallUpdate()
+//        update.remoteHandle = CXHandle(type: .generic, value: "BytePlayer")
+//
+        
+
+        //initiate the phone call
+//        provider.reportNewIncomingCall(with: UUID(), update: update, completion: { error in })
+
+        
+// configure sockets
+        socket = manager.defaultSocket
+//        socket.onAny {print("Got event: \($0.event), with items: \($0.items!)")}
+        
+        addHandlers()
+        socket.connect()
+    }
+
+
+    public override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+//        let notificationType = "a notification"
+//
+//            let alert = UIAlertController(title: "",
+//                                          message: "After 5 seconds " + notificationType + " will appear",
+//                                          preferredStyle: .alert)
+//
+//            let okAction = UIAlertAction(title: "OK", style: .default) { (action) in
+                
+//                self.appDelegate?.scheduleNotification(notificationType: "Notification")
+//            }
+            
+//            alert.addAction(okAction)
+//            present(alert, animated: true, completion: nil)
+    }
+
+
+    
+    // provider functions to configure the phone call
+    public func providerDidReset(_ provider: CXProvider) {
+        }
+    func provider(_ provider: CXProvider, perform action: CXAnswerCallAction) {
+            action.fulfill()
+        }
+    func provider(_ provider: CXProvider, perform action: CXEndCallAction) {
+            action.fulfill()
+        }
+    
+    func addHandlers() {
+        socket.on("to_ios") {[weak self] data, ack in
+            print("Received data!!")
+            print(data)
+            return
+        }
+
+        socket.on("my_event") {[weak self] data, ack in
+            print("Received data my event!!")
+            return
+        }
+        
+        socket.on("my_response") {[weak self] data, ack in
+            print("Received data my response!!")
+            return
+        }
+        
+        socket.on("trigger_call") {[weak self] data, ack in
+            print("Triggering phone call!")
+               let provider = CXProvider(configuration: CXProviderConfiguration(localizedName: "GestureClassifier"))
+               provider.setDelegate(self, queue: nil)
+               let update = CXCallUpdate()
+               update.remoteHandle = CXHandle(type: .generic, value: "BytePlayer")
+                    provider.reportNewIncomingCall(with: UUID(), update: update, completion: { error in })
+            return
+        }
+        
     }
     
     func setupButtons() {
@@ -270,3 +359,22 @@ public class ViewController: UIViewController {
     }
 
 }
+
+
+//extension ViewController: UNUserNotificationCenterDelegate {
+//
+//    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+//        completionHandler([.alert])
+//    }
+//
+//    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+//        switch response.actionIdentifier {
+//        case Notification.Action.readLater:
+//            print("Save Content For Later")
+//        default:
+//            print("Other Action")
+//        }
+//
+//        completionHandler()
+//    }
+//}
